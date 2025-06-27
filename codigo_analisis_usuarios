@@ -1,0 +1,459 @@
+#codigo analisis usuarios de app de tienda de alimentos
+
+import pandas as pd
+
+df_logs = pd.read_csv('/datasets/logs_exp_us.csv', sep='\\t')
+print(df_logs.head(5))
+print()
+print(df_logs.info())
+
+# Cambia el nombre de las columnas de manera que sea conveniente para ti ["event_name", "user_id", "event_time", "exp_id"]
+
+df_logs = df_logs.rename(columns={'EventName': 'event_name', 'DeviceIDHash': 'user_id', 'EventTimestamp': 'event_time', 'ExpId': 'exp_id'})
+print(df_logs.head(5))
+
+# Comprueba los tipos de datos y valores ausentes. Corrige los datos si es necesario.
+
+df_logs.info()
+
+# Convertir el la "user_id" a tipo de dato string
+
+df_logs['user_id'] = df_logs['user_id'].astype(str)
+print(df_logs.head(5))
+
+# Encuentra valores faltantes en las columnas 'event_name', 'exp_id' o 'user_id'
+
+print(df_logs.isnull().sum())
+
+# Verifica los tipos de datos en las columnas 'event_name', 'exp_id' o 'user_id'
+
+print(df_logs.dtypes)
+
+# Cambia el tipo de dato de la columna event_time al formato fecha
+
+df_logs['event_time'] = pd.to_datetime(df_logs['event_time'], unit='s')
+print(df_logs.head(5))
+
+# Agrega una columna de fecha y hora y una columna separada para las fechas.
+
+df_logs['fecha'] = df_logs['event_time'].dt.date
+print(df_logs.head(5))
+
+# ¿Cuántos eventos hay en los registros?
+
+print('Tenemos 5 eventos en los registros:', df_logs['event_name'].unique())
+
+# ¿Cuántos usuarios hay en los registros?
+
+print('Tenemos', df_logs['user_id'].nunique(), 'usuarios en los registros.')
+
+# ¿Cuál es el promedio de eventos por usuario?
+
+print('El promedio de eventos por usuario es:', df_logs.groupby('user_id')['event_name'].count().mean())
+
+# ¿Qué periodo de tiempo cubren los datos? Encuentra la fecha máxima y mínima.
+
+min_date = df_logs['event_time'].min()
+max_date = df_logs['event_time'].max()
+print('La fecha mínima es:', min_date)
+print('La fecha máxima es:', max_date)
+print()
+print('El periodo que abarcan las fechas es de:', max_date - min_date)
+
+# Traza un histograma por fecha y hora (columna event_time).
+
+df_logs['event_time'].hist(bins=100, figsize=(15,5))
+
+#¿Puedes tener seguridad de que tienes datos igualmente completos para todo el periodo? Los eventos más antiguos podrían terminar en los registros de algunos usuarios por razones técnicas y esto podría sesgar el panorama general.Encuentra el momento en el que los datos comienzan a estar completos e ignora la sección anterior. ¿Qué periodo representan realmente los datos?
+
+#Podemos ver que el momento en el que los datos empiezan a estar completos es a partir del 31 de julio.
+
+# Eliminamos los datos que en sean < a la fecha 2019-08-01.
+
+df_logs = df_logs[df_logs['event_time'] >= '2019-08-01'].reset_index(drop=True)
+print(df_logs.head(5))
+print()
+print(df_logs.info())
+
+#¿Perdimos muchos eventos y usuarios al excluir los datos más antiguos?
+
+#No se perdieron muchos datos, tenemos un total de 241298 líneas de las 244126 que teníamos al principio eliminando los datos anteriores al 31 de julio de 2019.
+
+# Asegúrate de tener usuarios de los tres grupos experimentales.
+df_logs['exp_id'].unique()
+
+#codigo analisis usuarios de app de tienda de alimentos
+
+import pandas as pd
+
+df_logs = pd.read_csv('/datasets/logs_exp_us.csv', sep='\\t')
+print(df_logs.head(5))
+print()
+print(df_logs.info())
+
+# Cambia el nombre de las columnas de manera que sea conveniente para ti ["event_name", "user_id", "event_time", "exp_id"]
+
+df_logs = df_logs.rename(columns={'EventName': 'event_name', 'DeviceIDHash': 'user_id', 'EventTimestamp': 'event_time', 'ExpId': 'exp_id'})
+print(df_logs.head(5))
+
+# Comprueba los tipos de datos y valores ausentes. Corrige los datos si es necesario.
+
+df_logs.info()
+
+# Convertir el la "user_id" a tipo de dato string
+
+df_logs['user_id'] = df_logs['user_id'].astype(str)
+print(df_logs.head(5))
+
+# Encuentra valores faltantes en las columnas 'event_name', 'exp_id' o 'user_id'
+
+print(df_logs.isnull().sum())
+
+# Verifica los tipos de datos en las columnas 'event_name', 'exp_id' o 'user_id'
+
+print(df_logs.dtypes)
+
+# Cambia el tipo de dato de la columna event_time al formato fecha
+
+df_logs['event_time'] = pd.to_datetime(df_logs['event_time'], unit='s')
+print(df_logs.head(5))
+
+# Agrega una columna de fecha y hora y una columna separada para las fechas.
+
+df_logs['fecha'] = df_logs['event_time'].dt.date
+print(df_logs.head(5))
+
+# ¿Cuántos eventos hay en los registros?
+
+print('Tenemos 5 eventos en los registros:', df_logs['event_name'].unique())
+
+# ¿Cuántos usuarios hay en los registros?
+
+print('Tenemos', df_logs['user_id'].nunique(), 'usuarios en los registros.')
+
+# ¿Cuál es el promedio de eventos por usuario?
+
+print('El promedio de eventos por usuario es:', df_logs.groupby('user_id')['event_name'].count().mean())
+
+# ¿Qué periodo de tiempo cubren los datos? Encuentra la fecha máxima y mínima.
+
+min_date = df_logs['event_time'].min()
+max_date = df_logs['event_time'].max()
+print('La fecha mínima es:', min_date)
+print('La fecha máxima es:', max_date)
+print()
+print('El periodo que abarcan las fechas es de:', max_date - min_date)
+
+# Traza un histograma por fecha y hora (columna event_time).
+
+df_logs['event_time'].hist(bins=100, figsize=(15,5))
+
+#¿Puedes tener seguridad de que tienes datos igualmente completos para todo el periodo? Los eventos más antiguos podrían terminar en los registros de algunos usuarios por razones técnicas y esto podría sesgar el panorama general.Encuentra el momento en el que los datos comienzan a estar completos e ignora la sección anterior. ¿Qué periodo representan realmente los datos?
+
+#Podemos ver que el momento en el que los datos empiezan a estar completos es a partir del 31 de julio.
+
+# Eliminamos los datos que en sean < a la fecha 2019-08-01.
+
+df_logs = df_logs[df_logs['event_time'] >= '2019-08-01'].reset_index(drop=True)
+print(df_logs.head(5))
+print()
+print(df_logs.info())
+
+#¿Perdimos muchos eventos y usuarios al excluir los datos más antiguos?
+
+#No se perdieron muchos datos, tenemos un total de 241298 líneas de las 244126 que teníamos al principio eliminando los datos anteriores al 31 de julio de 2019.
+
+# Asegúrate de tener usuarios de los tres grupos experimentales.
+df_logs['exp_id'].unique()
+
+#codigo analisis usuarios de app de tienda de alimentos
+
+import pandas as pd
+
+df_logs = pd.read_csv('/datasets/logs_exp_us.csv', sep='\\t')
+print(df_logs.head(5))
+print()
+print(df_logs.info())
+
+# Cambia el nombre de las columnas de manera que sea conveniente para ti ["event_name", "user_id", "event_time", "exp_id"]
+
+df_logs = df_logs.rename(columns={'EventName': 'event_name', 'DeviceIDHash': 'user_id', 'EventTimestamp': 'event_time', 'ExpId': 'exp_id'})
+print(df_logs.head(5))
+
+# Comprueba los tipos de datos y valores ausentes. Corrige los datos si es necesario.
+
+df_logs.info()
+
+# Convertir el la "user_id" a tipo de dato string
+
+df_logs['user_id'] = df_logs['user_id'].astype(str)
+print(df_logs.head(5))
+
+# Encuentra valores faltantes en las columnas 'event_name', 'exp_id' o 'user_id'
+
+print(df_logs.isnull().sum())
+
+# Verifica los tipos de datos en las columnas 'event_name', 'exp_id' o 'user_id'
+
+print(df_logs.dtypes)
+
+# Cambia el tipo de dato de la columna event_time al formato fecha
+
+df_logs['event_time'] = pd.to_datetime(df_logs['event_time'], unit='s')
+print(df_logs.head(5))
+
+# Agrega una columna de fecha y hora y una columna separada para las fechas.
+
+df_logs['fecha'] = df_logs['event_time'].dt.date
+print(df_logs.head(5))
+
+# ¿Cuántos eventos hay en los registros?
+
+print('Tenemos 5 eventos en los registros:', df_logs['event_name'].unique())
+
+# ¿Cuántos usuarios hay en los registros?
+
+print('Tenemos', df_logs['user_id'].nunique(), 'usuarios en los registros.')
+
+# ¿Cuál es el promedio de eventos por usuario?
+
+print('El promedio de eventos por usuario es:', df_logs.groupby('user_id')['event_name'].count().mean())
+
+# ¿Qué periodo de tiempo cubren los datos? Encuentra la fecha máxima y mínima.
+
+min_date = df_logs['event_time'].min()
+max_date = df_logs['event_time'].max()
+print('La fecha mínima es:', min_date)
+print('La fecha máxima es:', max_date)
+print()
+print('El periodo que abarcan las fechas es de:', max_date - min_date)
+
+# Traza un histograma por fecha y hora (columna event_time).
+
+df_logs['event_time'].hist(bins=100, figsize=(15,5))
+
+#¿Puedes tener seguridad de que tienes datos igualmente completos para todo el periodo? Los eventos más antiguos podrían terminar en los registros de algunos usuarios por razones técnicas y esto podría sesgar el panorama general.Encuentra el momento en el que los datos comienzan a estar completos e ignora la sección anterior. ¿Qué periodo representan realmente los datos?
+
+#Podemos ver que el momento en el que los datos empiezan a estar completos es a partir del 31 de julio.
+
+# Eliminamos los datos que en sean < a la fecha 2019-08-01.
+
+df_logs = df_logs[df_logs['event_time'] >= '2019-08-01'].reset_index(drop=True)
+print(df_logs.head(5))
+print()
+print(df_logs.info())
+
+#¿Perdimos muchos eventos y usuarios al excluir los datos más antiguos?
+
+#No se perdieron muchos datos, tenemos un total de 241298 líneas de las 244126 que teníamos al principio eliminando los datos anteriores al 31 de julio de 2019.
+
+# Asegúrate de tener usuarios de los tres grupos experimentales.
+df_logs['exp_id'].unique()
+
+# Observa qué eventos hay en los registros y su frecuencia de suceso. Ordénalos por frecuencia.
+
+print(df_logs['event_name'].value_counts())
+print()
+df_logs_event = df_logs['event_name'].value_counts() #  conteo de ocurrencias de cada valor único en la columna event_name
+df_logs['frecuencia'] = df_logs['event_name'].map(df_logs_event) #creamos una nueva columna con la frecuencia de ocurrencia de cada valor en la columna event_name
+df_logs_ordenado = df_logs.sort_values(by='frecuencia', ascending=False).reset_index(drop=True)
+print(df_logs_ordenado.head(15))
+
+# Encuentra la cantidad de usuarios que realizaron cada una de estas acciones.
+
+print(df_logs_ordenado.groupby('event_name')['user_id'].nunique())
+
+# Ordena los eventos por el número de usuarios.
+
+print()
+embudo_df_logs= df_logs_ordenado.groupby('event_name')['user_id'].nunique().sort_values(ascending=False)
+print(embudo_df_logs)
+
+# Calcula la proporción de usuarios que realizaron la acción al menos una vez.
+
+# Iteramos sobre cada evento único en el DataFrame y calculamos la proporción de usuarios que realizaron cada evento
+print()
+for event in df_logs_ordenado['event_name'].unique():
+    users = df_logs_ordenado[df_logs_ordenado['event_name'] == event]['user_id'].nunique() # Usuarios por evento
+    total_users = df_logs_ordenado['user_id'].nunique() # Usuarios totales en el df
+    proportion = users / total_users
+    print(f'La proporción de usuarios que realizaron la acción "{event}" al menos una vez es: {proportion:.2f}') # Proporción a dos decimales
+
+# ¿En qué orden crees que ocurrieron las acciones? ¿Todas son parte de una sola secuencia? No es necesario tenerlas en cuenta al calcular el embudo.
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+data = {
+    'Stage': ['MainScreenAppear', 'OffersScreenAppear', 'CartScreenAppear', 'PaymentScreenSuccessful', 'Tutorial'],
+    'Quantity': [7419, 4593, 3734, 3539, 840]
+}
+
+df = pd.DataFrame(data)
+
+# Hacer que el fondo sea oscuro
+plt.style.use("dark_background")
+
+# Crear un gráfico de barras utilizando la librería seaborn
+sns.barplot(x='Stage', y='Quantity', data=df)
+
+# Agregar etiquetas y título al gráfico, rotar eje x 90°
+plt.xlabel('Stage')
+plt.ylabel('Quantity')
+plt.title('Embudo de Eventos')
+plt.xticks(rotation=45)
+
+# Mostrar el gráfico
+plt.show()
+
+# Utiliza el embudo de eventos para encontrar la proporción de usuarios que pasan de una etapa a la siguiente.
+# Por ejemplo, para la secuencia de eventos A → B → C, calcula la proporción de usuarios en la etapa B a la cantidad de usuarios en la etapa A y la proporción de usuarios en la etapa C a la cantidad en la etapa B.
+
+df['conv_sig_etapa'] = ((df['Quantity'] / df['Quantity'][0]).round(2))*100
+
+# Diferencia entre etapas en la columna conv_sig_etapa y muestra la diferencia a dos dec
+
+df['dif_etapa'] = df['conv_sig_etapa'].diff().round(2)
+print(df)
+print()
+# ¿En qué etapa pierdes más usuarios?
+print('Vemos que la etapa que perdió más usuarios fue de la primer etapa MainScreenAppear a  la segunda OffersScreenAppear con un porcentaje de -38%')
+
+# ¿Cuántos usuarios hay en cada grupo?
+
+df_logs.groupby(['exp_id', 'event_name'])['user_id'].count()
+
+# ¿Cuántos usuarios hay en cada grupo?
+
+df_logs.groupby(['exp_id', 'event_name'])['user_id'].count()
+
+# Agrega una columna al data set exp_group_246 que indique 246.
+
+exp_group_246['exp_id'] = 246
+exp_group_247['exp_id'] = 247
+exp_group_248['exp_id'] = 248
+
+# Une los datasets exp_group_246, exp_group_246 y exp_group_246 en un solo data frame
+
+df_logs_exp = pd.concat([exp_group_246, exp_group_247, exp_group_248])
+print(df_logs_exp.head(10))
+
+# Cambia el nombre de la columna user_id por users_qty
+
+df_logs_exp = df_logs_exp.rename(columns={'user_id': 'users_qty'})
+print(df_logs_exp.head(3))
+
+
+from scipy import stats as st
+import numpy as np
+
+# Observa si hay una diferencia estadísticamente significativa entre las muestras exp_246 y exp_247
+# Hipótesis nula: hay una diferencia estadísticamente significativa
+alpha = 0.05
+
+# scipy.stats.ttest_ind(exp_246, exp_247, equal_var)
+
+results = st.ttest_ind(exp_group_246['user_id'], exp_group_247['user_id'])
+
+print('valor p: ', results.pvalue) # extraer el valor p
+if results.pvalue < alpha:
+    print("Rechazamos la hipótesis nula, sí hay una diferencia significativa entre las muestras 246 y 247")
+else:
+    print("No rechazamos la hipótesis nula, no hay suficiente evidencia de una diferencia significativa entre las muestras 246 y 247")
+    print(results.pvalue)
+
+# Encuentra la cantidad de usuarios que realizaron el evento MainScreenAppear de los exp_id 246 y 247 del df_logs_exp
+
+users_246_qty = df_logs_exp[(df_logs_exp['event_name'] == 'MainScreenAppear') & (df_logs_exp['exp_id'] == 246)]['users_qty'].sum()
+print('cantidad de usuarios en evento MainScreenAppear del grupo 246=', users_246_qty)
+users_247_qty = df_logs_exp[(df_logs_exp['event_name'] == 'MainScreenAppear') & (df_logs_exp['exp_id'] == 247)]['users_qty'].sum()
+print('cantidad de usuarios en evento MainScreenAppear del grupo 247=', users_247_qty)
+
+# Encuentra la proporción de los dos 'exp_id' 246 y 248
+
+total_users = users_246_qty + users_247_qty
+proporcion_246 = users_246_qty / total_users
+print('proporción grupo 246 =', proporcion_246)
+proporcion_247 = users_247_qty / total_users
+print('proporción grupo 247 =', proporcion_247)
+
+# Encuentra si hay diferencia significativa entre 'exp_id' == 246 y 'exp_id' == 248 solo en el evento "MainScreenAppear" de la columna "event_name"
+
+results = st.ttest_ind(df_logs_exp[(df_logs_exp['event_name'] == 'MainScreenAppear') & (df_logs_exp['exp_id'] == 246)]['users_qty'], df_logs_exp[(df_logs_exp['event_name'] == 'MainScreenAppear') & (df_logs_exp['exp_id'] == 247)]['users_qty'])
+print('p-value:', results.pvalue)
+
+if results.pvalue < alpha:
+    print("Rechazamos la hipótesis nula, sí hay una diferencia significativa entre las muestras 246 y 247")
+    print(results.pvalue)
+else:
+    print("No rechazamos la hipótesis nula, no hay suficiente evidencia de una diferencia significativa entre las muestras 246 y 247")
+    print(results.pvalue)
+
+
+# Creamos una función para encuentrar en cada grupo la cantidad de usuarios que realizaron una acción, encontrar su proporción y comprobar si la diferencia entre los grupos es estadísticamente significativa.
+
+import pandas as pd
+from scipy import stats as st
+
+def analizar_evento_grupos(df_logs_exp, event_name, exp_ids, alpha=0.05):
+
+    try:
+        resultados = {}
+        total_usuarios = 0
+
+        for exp_id in exp_ids:
+            usuarios_evento = df_logs_exp[(df_logs_exp['event_name'] == event_name) & (df_logs_exp['exp_id'] == exp_id)]['users_qty']
+            cantidad_usuarios = usuarios_evento.sum()
+            resultados[exp_id] = {'cantidad_usuarios': cantidad_usuarios}
+            total_usuarios += cantidad_usuarios
+
+        if total_usuarios == 0:  # Validamos para evitar división por cero
+            print("No se encontraron usuarios para el evento especificado en los grupos proporcionados.")
+            return None
+
+        for exp_id in exp_ids:
+            resultados[exp_id]['proporcion'] = resultados[exp_id]['cantidad_usuarios'] / total_usuarios
+            
+        # Realizar la prueba t-test solo si hay dos grupos para comparar.
+        if len(exp_ids) == 2:
+            grupo1 = df_logs_exp[(df_logs_exp['event_name'] == event_name) & (df_logs_exp['exp_id'] == exp_ids[0])]['users_qty']
+            grupo2 = df_logs_exp[(df_logs_exp['event_name'] == event_name) & (df_logs_exp['exp_id'] == exp_ids[1])]['users_qty']
+            
+            # Validar que al menos un grupo tenga datos antes de realizar la prueba t-test
+            if not grupo1.empty and not grupo2.empty:
+              results_ttest = st.ttest_ind(grupo1, grupo2)
+              resultados['ttest'] = {
+                  'pvalue': results_ttest.pvalue,
+                  'rechaza_hipotesis_nula': results_ttest.pvalue < alpha
+              }
+            else:
+              print("Uno o ambos grupos no tienen datos para el evento especificado. No se puede realizar la prueba t-test.")
+              resultados['ttest'] = None
+        elif len(exp_ids) > 2:
+            print("Más de dos grupos proporcionados. La función solo realiza la prueba t-test para dos grupos.")
+            resultados['ttest'] = None
+        else:
+            print("Se debe proporcionar al menos dos grupos para realizar la prueba t-test.")
+            resultados['ttest'] = None
+
+        return resultados
+
+    except Exception as e:
+        print(f"Error en la función: {e}")
+        return None
+
+resultados = analizar_evento_grupos(df_logs_exp, 'MainScreenAppear', [246, 247])
+
+if resultados:
+    for exp_id in resultados:
+        if exp_id != 'ttest': # Imprimir resultados de cada grupo, excepto el t-test
+            print(f"Cantidad de usuarios del grupo {exp_id} = {resultados[exp_id]['cantidad_usuarios']}")
+            print(f"Proporción grupo {exp_id} = {resultados[exp_id]['proporcion']}")
+    if 'ttest' in resultados and resultados['ttest'] is not None: # Imprimir el resultado del t-test si existe
+        print('p-value:', resultados['ttest']['pvalue'])
+        if resultados['ttest']['rechaza_hipotesis_nula']:
+            print("Rechazamos la hipótesis nula, sí hay una diferencia significativa entre las muestras")
+        else:
+            print("No rechazamos la hipótesis nula, no hay suficiente evidencia de una diferencia significativa")
+else:
+    print("No se pudieron realizar los análisis.")
